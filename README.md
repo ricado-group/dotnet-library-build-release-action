@@ -7,6 +7,10 @@ A Composite Action that Builds, Publishes and Releases a .NET 6 Library
 
 **Required** The Project Name (e.g. RICADO.Logging)
 
+### `github-token`
+
+**Required** The GitHub Token used to Generate a Changelog and Create Releases
+
 ### `private-nuget-url`
 
 **Required** The URL of the Private NuGet Repository (e.g. https://nuget.pkg.github.com/myname/index.json)
@@ -31,14 +35,21 @@ _Optional_ Whether the Library should be Published to the Public NuGet Repositor
 
 Defaults to `false`
 
+## Outputs
+
+### `changelog`
+
+A Markdown formatted changelog
+
 ## Example Usage
 
 ```yml
-uses: ricado-group/dotnet-library-build-release-action@v1.1
+uses: ricado-group/dotnet-library-build-release-action@v1.2
 with:
   project-name: 'RICADO.Logging'
+  github-token: ${{ secrets.GITHUB_TOKEN }}
   private-nuget-url: 'https://nuget.pkg.github.com/myname/index.json'
-  private-nuget-token: ${{ secrets.GITHUB_ACCESS_TOKEN }}
-  public-nuget-token: ${{ secrets.NUGET_TOKEN }}
+  private-nuget-token: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
+  public-nuget-token: ${{ secrets.NUGET_APIKEY }}
   publish-public: true
 ```

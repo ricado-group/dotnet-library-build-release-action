@@ -10,6 +10,9 @@ inputs:
   project-name:
     description: 'The Project Name (e.g. RICADO.Logging)'
     required: true
+  github-token:
+    description: 'The GitHub Token used to Generate a Changelog and Create Releases'
+    required: true
   private-nuget-url:
     description: 'The URL of the Private NuGet Repository (e.g. https://nuget.pkg.github.com/myname/index.json)'
     required: true
@@ -53,25 +56,30 @@ runs:
     # Step 3 - Restore NuGet Packages
     - name: Restore NuGet Packages
       run: dotnet restore "${{ inputs.project-name }}/${{ inputs.project-name }}.csproj"
+      shell: bash
     
     # Step 4 - Build the Library
     - name: Build the Library
       run: dotnet build "${{ inputs.project-name }}/${{ inputs.project-name }}.csproj" -c Release --no-restore
+      shell: bash
     
     # Step 5 - Pack the Library
     - name: Pack the Library
       if: ${{ startsWith(github.ref, 'refs/tags/') }}
       run: dotnet pack "${{ inputs.project-name}}/${{ inputs.project-name }}.csproj" -c Release -p:PackageVersion=${{ env.CI_REF_NAME }}
+      shell: bash
     
     # Step 6 - Push the Package to GitHub Packages
     - name: Push the Package to GitHub Packages
       if: ${{ startsWith(github.ref, 'refs/tags/') }}
       run: dotnet nuget push "${{ inputs.project-name }}/bin/Release/*.nupkg" -k ${{ inputs.private-nuget-token }} -s "${{ inputs.private-nuget-url }}" --skip-duplicate
+      shell: bash
     
     # Step 7 - Push the Package to NuGet
     - name: Push the Package to Nuget
       if: ${{ startsWith(github.ref, 'refs/tags/') && inputs.publish-public == 'true' }}
       run: dotnet nuget push "${{ inputs.project-name }}/bin/Release/*.nupkg" -k ${{ inputs.public-nuget-token }} -s "${{ inputs.public-nuget-url }}" --skip-duplicate
+      shell: bash
     
     # Step 8 - Generate the Changelog
     - name: Generate the Changelog
@@ -79,7 +87,7 @@ runs:
       if: ${{ startsWith(github.ref, 'refs/tags/') }}
       uses: metcalfc/changelog-generator@v3.0.0
       with:
-        myToken: ${{ secrets.GITHUB_TOKEN }}
+        myToken: ${{ inputs.github-token }}
     
     # Step 9 - Create New Release
     - name: Create New Release
@@ -87,7 +95,7 @@ runs:
       if: ${{ startsWith(github.ref, 'refs/tags/') }}
       uses: softprops/action-gh-release@v1
       env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        GITHUB_TOKEN: ${{ inputs.github-token }}
       with:
         tag_name: ${{ env.CI_REF_NAME }}
         name: Version ${{ env.CI_REF_NAME }}
