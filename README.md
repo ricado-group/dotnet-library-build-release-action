@@ -34,7 +34,7 @@ Defaults to `false`
 ## Example Usage
 
 ```yml
-uses: ricado-group/dotnet-library-build-release-action@v1
+uses: ricado-group/dotnet-library-build-release-action@v1.1
 with:
   project-name: 'RICADO.Logging'
   private-nuget-url: 'https://nuget.pkg.github.com/myname/index.json'
