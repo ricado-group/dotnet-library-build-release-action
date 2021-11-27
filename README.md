@@ -17,17 +17,17 @@ A Composite Action that Builds, Publishes and Releases a .NET 6 Library
 
 ### `public-nuget-url`
 
-__Optional__ The URL of the Public NuGet Repository (e.g. https://api.nuget.org/v3/index.json)
+_Optional_ The URL of the Public NuGet Repository (e.g. https://api.nuget.org/v3/index.json)
 
 Defaults to `https://api.nuget.org/v3/index.json`
 
 ### `public-nuget-token`
 
-__Optional__ The Token used for Authentication with the Public NuGet Repository
+_Optional_ The Token used for Authentication with the Public NuGet Repository
 
 ### `publish-public`
 
-__Optional__ Whether the Library should be Published to the Public NuGet Repository
+_Optional_ Whether the Library should be Published to the Public NuGet Repository
 
 Defaults to `false`
 
