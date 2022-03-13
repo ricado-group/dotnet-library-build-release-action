@@ -46,7 +46,7 @@ runs:
     
     # Step 2 - Setup .NET 6 with GitHub Packages Authentication
     - name: Setup .NET 6 with GitHub Packages Authentication
-      uses: actions/setup-dotnet@v1
+      uses: actions/setup-dotnet@v2
       with:
         dotnet-version: 6.0.x
         source-url: ${{ inputs.private-nuget-url }}
