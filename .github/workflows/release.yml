@@ -5,7 +5,7 @@ name: Automated Releases
 on:
   push:
     tags:
-      - "v*"
+      - 'v*.*.*'
 
 # Workflow Jobs
 jobs:
