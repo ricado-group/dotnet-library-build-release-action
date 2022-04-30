@@ -44,7 +44,7 @@ A Markdown formatted changelog
 ## Example Usage
 
 ```yml
-uses: ricado-group/dotnet-library-build-release-action@v1.2
+uses: ricado-group/dotnet-library-build-release-action@v1
 with:
   project-name: 'RICADO.Logging'
   github-token: ${{ secrets.GITHUB_TOKEN }}
@@ -52,4 +52,18 @@ with:
   private-nuget-token: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
   public-nuget-token: ${{ secrets.NUGET_APIKEY }}
   publish-public: true
+```
+
+## Stay Updated with Dependabot
+
+Use [Dependabot](https://docs.github.com/en/github/administering-a-repository/keeping-your-actions-up-to-date-with-github-dependabot) to update your GitHub Actions by creating a `.github/dependabot.yml` file:
+
+```yaml
+version: 2
+updates:
+  # Maintain Dependencies for GitHub Actions
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "daily"
 ```
