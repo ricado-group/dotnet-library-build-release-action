@@ -42,7 +42,7 @@ runs:
   steps:
     # Step 1 - Extract Environment Variables
     - name: Extract Environment Variables
-      uses: FranzDiebold/github-env-vars-action@v2.3.0
+      uses: FranzDiebold/github-env-vars-action@v2.3.1
     
     # Step 2 - Setup .NET 6 with GitHub Packages Authentication
     - name: Setup .NET 6 with GitHub Packages Authentication
