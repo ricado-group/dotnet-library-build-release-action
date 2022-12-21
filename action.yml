@@ -30,6 +30,10 @@ inputs:
     description: 'Whether the Library should be Published to the Public NuGet Repository'
     required: false
     default: 'false'
+  dotnet-version:
+    description: 'The .NET SDK Version to be used for Builds (e.g. 6.0.x)'
+    required: false
+    default: '6.0.x'
 
 # Outputs
 outputs:
@@ -48,7 +52,7 @@ runs:
     - name: Setup .NET 6 with GitHub Packages Authentication
       uses: actions/setup-dotnet@v3
       with:
-        dotnet-version: 6.0.x
+        dotnet-version: ${{ inputs.dotnet-version }}
         source-url: ${{ inputs.private-nuget-url }}
       env:
         NUGET_AUTH_TOKEN: ${{ inputs.private-nuget-token }}

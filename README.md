@@ -35,6 +35,12 @@ _Optional_ Whether the Library should be Published to the Public NuGet Repositor
 
 Defaults to `false`
 
+### `dotnet-version`
+
+_Optional_ The .NET SDK Version to be used for Builds (e.g. 6.0.x)
+
+Defaults to `6.0.x`
+
 ## Outputs
 
 ### `changelog`
@@ -52,6 +58,7 @@ with:
   private-nuget-token: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
   public-nuget-token: ${{ secrets.NUGET_APIKEY }}
   publish-public: true
+  dotnet-version: 6.0.x
 ```
 
 ## Stay Updated with Dependabot
