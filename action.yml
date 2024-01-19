@@ -48,9 +48,9 @@ runs:
     - name: Extract Environment Variables
       uses: FranzDiebold/github-env-vars-action@v2
     
-    # Step 2 - Setup .NET 6 with GitHub Packages Authentication
-    - name: Setup .NET 6 with GitHub Packages Authentication
-      uses: actions/setup-dotnet@v3
+    # Step 2 - Setup .NET with GitHub Packages Authentication
+    - name: Setup .NET with GitHub Packages Authentication
+      uses: actions/setup-dotnet@v4
       with:
         dotnet-version: ${{ inputs.dotnet-version }}
         source-url: ${{ inputs.private-nuget-url }}
@@ -73,35 +73,48 @@ runs:
       run: dotnet pack "${{ inputs.project-name}}/${{ inputs.project-name }}.csproj" -c Release -p:PackageVersion=${{ env.CI_REF_NAME }}
       shell: bash
     
-    # Step 6 - Push the Package to GitHub Packages
+    # Step 6 - Generate the Changelog
+    - name: Generate the Changelog
+      id: changelog
+      if: ${{ startsWith(github.ref, 'refs/tags/') }}
+      uses: metcalfc/changelog-generator@v4.2.0
+      with:
+        mytoken: ${{ inputs.github-token }}
+    
+    # Step 7 - Create Draft GitHub Release
+    - name: Create Draft GitHub Release
+      id: create-draft-release
+      if: ${{ startsWith(github.ref, 'refs/tags/') }}
+      uses: ncipollo/release-action@v1
+      with:
+        body: ${{ steps.changelog.outputs.changelog }}
+        draft: true
+        name: Version ${{ env.CI_REF_NAME }}
+        tag: ${{ env.CI_REF_NAME }}
+        token: ${{ inputs.github-token }}
+    
+    # Step 8 - Push the Package to GitHub Packages
     - name: Push the Package to GitHub Packages
       if: ${{ startsWith(github.ref, 'refs/tags/') }}
       run: dotnet nuget push "${{ inputs.project-name }}/bin/Release/*.nupkg" -k ${{ inputs.private-nuget-token }} -s "${{ inputs.private-nuget-url }}" --skip-duplicate
       shell: bash
     
-    # Step 7 - Push the Package to NuGet
+    # Step 9 - Push the Package to NuGet
     - name: Push the Package to Nuget
       if: ${{ startsWith(github.ref, 'refs/tags/') && inputs.publish-public == 'true' }}
       run: dotnet nuget push "${{ inputs.project-name }}/bin/Release/*.nupkg" -k ${{ inputs.public-nuget-token }} -s "${{ inputs.public-nuget-url }}" --skip-duplicate
       shell: bash
     
-    # Step 8 - Generate the Changelog
-    - name: Generate the Changelog
-      id: changelog
+    # Step 10 - Publish GitHub Release
+    - name: Publish GitHub Release
+      id: publish-release
       if: ${{ startsWith(github.ref, 'refs/tags/') }}
-      uses: metcalfc/changelog-generator@v4.0.1
+      uses: ncipollo/release-action@v1
       with:
-        myToken: ${{ inputs.github-token }}
-    
-    # Step 9 - Create New Release
-    - name: Create New Release
-      id: create-release
-      if: ${{ startsWith(github.ref, 'refs/tags/') }}
-      uses: softprops/action-gh-release@v1
-      env:
-        GITHUB_TOKEN: ${{ inputs.github-token }}
-      with:
-        tag_name: ${{ env.CI_REF_NAME }}
-        name: Version ${{ env.CI_REF_NAME }}
-        body: |
-          ${{ steps.changelog.outputs.changelog }}
+        allowUpdates: true
+        draft: false
+        omitBodyDuringUpdate: true
+        omitNameDuringUpdate: true
+        tag: ${{ env.CI_REF_NAME }}
+        token: ${{ inputs.github-token }}
+        updateOnlyUnreleased: true
