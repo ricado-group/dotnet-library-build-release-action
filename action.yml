@@ -1,5 +1,5 @@
 name: '.NET Library Build and Release'
-description: 'A Composite Action that Builds, Publishes and Releases a .NET 6 Library'
+description: 'A Composite Action that Builds, Publishes and Releases a .NET 7+ Library'
 author: 'RICADO Group'
 branding:
   icon: 'link'
@@ -31,9 +31,9 @@ inputs:
     required: false
     default: 'false'
   dotnet-version:
-    description: 'The .NET SDK Version to be used for Builds (e.g. 6.0.x)'
+    description: 'The .NET SDK Version to be used for Builds (e.g. 7.0.x)'
     required: false
-    default: '6.0.x'
+    default: '7.0.x'
 
 # Outputs
 outputs:
