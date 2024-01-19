@@ -1,6 +1,6 @@
 name: '.NET Library Build and Release'
 description: 'A Composite Action that Builds, Publishes and Releases a .NET 7+ Library'
-author: 'RICADO Group'
+author: 'RICADO'
 branding:
   icon: 'link'
   color: 'blue'
