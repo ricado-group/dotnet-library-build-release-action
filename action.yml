@@ -82,9 +82,10 @@ runs:
         mytoken: ${{ inputs.github-token }}
     
     # Step 7 - Create Draft GitHub Release
+    # NOTE: Skipping until GitHub resolves an issue: https://github.com/cli/cli/issues/3037
     - name: Create Draft GitHub Release
       id: create-draft-release
-      if: ${{ startsWith(github.ref, 'refs/tags/') }}
+      if: ${{ false && startsWith(github.ref, 'refs/tags/') }}
       uses: ncipollo/release-action@v1
       with:
         body: ${{ steps.changelog.outputs.changelog }}
@@ -118,3 +119,5 @@ runs:
         tag: ${{ env.CI_REF_NAME }}
         token: ${{ inputs.github-token }}
         updateOnlyUnreleased: true
+        body: ${{ steps.changelog.outputs.changelog }}
+        name: Version ${{ env.CI_REF_NAME }}
