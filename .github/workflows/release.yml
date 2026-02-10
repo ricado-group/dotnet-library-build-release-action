@@ -13,53 +13,49 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      # Step 1 - Checkout Code
+      # Checkout Code
       - name: Checkout Code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
       
-      # Step 2 - Extract Environment Variables
-      - name: Extract Environment Variables
-        uses: FranzDiebold/github-env-vars-action@v2
-      
-      # Step 3 - Generate the Changelog
+      # Generate the Changelog
       - name: Generate the Changelog
         id: changelog
-        if: ${{ startsWith(github.ref, 'refs/tags/') }}
-        uses: metcalfc/changelog-generator@v4.3.1
+        if: ${{ github.ref_type == 'tag' }}
+        uses: metcalfc/changelog-generator@v4
         with:
           mytoken: ${{ secrets.GITHUB_TOKEN }}
       
       # Step 4 - Create GitHub Release
       - name: Create GitHub Release
-        if: ${{ startsWith(github.ref, 'refs/tags/') }}
+        if: ${{ github.ref_type == 'tag' }}
         uses: ncipollo/release-action@v1
         with:
-          name: Release ${{ env.CI_REF_NAME }}
+          name: Release ${{ github.ref_name }}
           body: ${{ steps.changelog.outputs.changelog }}
-          tag: ${{ env.CI_REF_NAME }}
+          tag: ${{ github.ref_name }}
           token: ${{ secrets.GITHUB_TOKEN }}
       
       # Step 5 - Extract Major Version Number
       - name: Extract Major Version Number
         id: extractMajorVersion
-        if: ${{ startsWith(github.ref, 'refs/tags/') }}
+        if: ${{ github.ref_type == 'tag' }}
         run: |
-          tagName=$(echo ${{ env.CI_REF_NAME }} | cut -d . -f 1)
+          tagName=$(echo ${{ github.ref_name }} | cut -d . -f 1)
           echo "tagName=$tagName" >> $GITHUB_OUTPUT
       
       # Step 6 - Configure Git Metadata
       - name: Configure Git Metadata
-        if: ${{ startsWith(github.ref, 'refs/tags/') }}
+        if: ${{ github.ref_type == 'tag' }}
         run: |
           git config user.name github-actions
           git config user.email github-actions@github.com
       
       # Step 7 - Tag New Major Version
       - name: Tag New Major Version
-        if: ${{ startsWith(github.ref, 'refs/tags/') }}
-        run: git tag -f ${{ steps.extractMajorVersion.outputs.tagName }} ${{ env.CI_REF_NAME }}
+        if: ${{ github.ref_type == 'tag' }}
+        run: git tag -f ${{ steps.extractMajorVersion.outputs.tagName }} ${{ github.ref_name }}
       
       # Step 8 - Push New Major Version Tag
       - name: Push New Major Version Tag
-        if: ${{ startsWith(github.ref, 'refs/tags/') }}
+        if: ${{ github.ref_type == 'tag' }}
         run: git push origin ${{ steps.extractMajorVersion.outputs.tagName }} --force

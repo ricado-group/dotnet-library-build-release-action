@@ -25,9 +25,9 @@ _Optional_ The URL of the Public NuGet Repository (e.g. https://api.nuget.org/v3
 
 Defaults to `https://api.nuget.org/v3/index.json`
 
-### `public-nuget-token`
+### `public-nuget-user`
 
-_Optional_ The Token used for Authentication with the Public NuGet Repository
+_Optional_ The Username (Profile Name) of the NuGet.org Account used for Trusted Publishing with the Public NuGet Repository
 
 ### `publish-public`
 
@@ -50,15 +50,30 @@ A Markdown formatted changelog
 ## Example Usage
 
 ```yml
-uses: ricado-group/dotnet-library-build-release-action@v1
-with:
-  project-name: 'RICADO.Logging'
-  github-token: ${{ secrets.GITHUB_TOKEN }}
-  private-nuget-url: 'https://nuget.pkg.github.com/myname/index.json'
-  private-nuget-token: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
-  public-nuget-token: ${{ secrets.NUGET_APIKEY }}
-  publish-public: true
-  dotnet-version: 7.0.x
+permissions:
+  id-token: write # Required if Publishing to NuGet
+
+jobs:
+  build-and-release:
+    permissions:
+      id-token: write # Required if Publishing to NuGet
+    
+    steps:
+      # Checkout Code
+      - name: Checkout
+        uses: actions/checkout@v6
+      
+      # Build and Release
+      - name: Build and Release
+        uses: ricado-group/dotnet-library-build-release-action@v2
+        with:
+          project-name: 'RICADO.Logging'
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          private-nuget-url: 'https://nuget.pkg.github.com/myname/index.json'
+          private-nuget-token: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
+          public-nuget-user: ${{ vars.NUGET_USER }}
+          publish-public: true
+          dotnet-version: 7.0.x
 ```
 
 ## Stay Updated with Dependabot

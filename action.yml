@@ -23,8 +23,8 @@ inputs:
     description: 'The URL of the Public NuGet Repository (e.g. https://api.nuget.org/v3/index.json)'
     required: false
     default: 'https://api.nuget.org/v3/index.json'
-  public-nuget-token:
-    description: 'The Token used for Authentication with the Public NuGet Repository'
+  public-nuget-user:
+    description: 'The Username (Profile Name) of the NuGet.org Account used for Trusted Publishing with the Public NuGet Repository'
     required: false
   publish-public:
     description: 'Whether the Library should be Published to the Public NuGet Repository'
@@ -44,80 +44,83 @@ outputs:
 runs:
   using: 'composite'
   steps:
-    # Step 1 - Extract Environment Variables
-    - name: Extract Environment Variables
-      uses: FranzDiebold/github-env-vars-action@v2
-    
-    # Step 2 - Setup .NET with GitHub Packages Authentication
+    # Setup .NET with GitHub Packages Authentication
     - name: Setup .NET with GitHub Packages Authentication
-      uses: actions/setup-dotnet@v4
+      uses: actions/setup-dotnet@v5
       with:
         dotnet-version: ${{ inputs.dotnet-version }}
         source-url: ${{ inputs.private-nuget-url }}
       env:
         NUGET_AUTH_TOKEN: ${{ inputs.private-nuget-token }}
     
-    # Step 3 - Restore NuGet Packages
+    # Restore NuGet Packages
     - name: Restore NuGet Packages
       run: dotnet restore "${{ inputs.project-name }}/${{ inputs.project-name }}.csproj"
       shell: bash
     
-    # Step 4 - Build the Library
+    # Build the Library
     - name: Build the Library
       run: dotnet build "${{ inputs.project-name }}/${{ inputs.project-name }}.csproj" -c Release --no-restore
       shell: bash
     
-    # Step 5 - Pack the Library
+    # Pack the Library
     - name: Pack the Library
-      if: ${{ startsWith(github.ref, 'refs/tags/') }}
-      run: dotnet pack "${{ inputs.project-name}}/${{ inputs.project-name }}.csproj" -c Release -p:PackageVersion=${{ env.CI_REF_NAME }}
+      if: ${{ github.ref_type == 'tag' }}
+      run: dotnet pack "${{ inputs.project-name}}/${{ inputs.project-name }}.csproj" -c Release -p:PackageVersion=${{ github.ref_name }}
       shell: bash
     
-    # Step 6 - Generate the Changelog
+    # Generate the Changelog
     - name: Generate the Changelog
       id: changelog
-      if: ${{ startsWith(github.ref, 'refs/tags/') }}
-      uses: metcalfc/changelog-generator@v4.3.1
+      if: ${{ github.ref_type == 'tag' }}
+      uses: metcalfc/changelog-generator@v4
       with:
         mytoken: ${{ inputs.github-token }}
     
-    # Step 7 - Create Draft GitHub Release
-    # NOTE: Skipping until GitHub resolves an issue: https://github.com/cli/cli/issues/3037
+    # Create Draft GitHub Release
     - name: Create Draft GitHub Release
       id: create-draft-release
-      if: ${{ false && startsWith(github.ref, 'refs/tags/') }}
+      if: ${{ github.ref_type == 'tag' }}
       uses: ncipollo/release-action@v1
       with:
         body: ${{ steps.changelog.outputs.changelog }}
         draft: true
-        name: Version ${{ env.CI_REF_NAME }}
-        tag: ${{ env.CI_REF_NAME }}
+        name: Version ${{ github.ref_name }}
+        tag: ${{ github.ref_name }}
         token: ${{ inputs.github-token }}
     
-    # Step 8 - Push the Package to GitHub Packages
+    # Push the Package to GitHub Packages
     - name: Push the Package to GitHub Packages
-      if: ${{ startsWith(github.ref, 'refs/tags/') }}
+      if: ${{ github.ref_type == 'tag' }}
       run: dotnet nuget push "${{ inputs.project-name }}/bin/Release/*.nupkg" -k ${{ inputs.private-nuget-token }} -s "${{ inputs.private-nuget-url }}" --skip-duplicate
       shell: bash
     
-    # Step 9 - Push the Package to NuGet
+    # Get NuGet API Key
+    - name: Get NuGet API Key
+      id: nuget-login
+      if: ${{ github.ref_type == 'tag' && inputs.publish-public == 'true' }}
+      uses: NuGet/login@v1
+      with:
+        user: ${{ inputs.public-nuget-user }}
+    
+    # Push the Package to NuGet
     - name: Push the Package to Nuget
-      if: ${{ startsWith(github.ref, 'refs/tags/') && inputs.publish-public == 'true' }}
-      run: dotnet nuget push "${{ inputs.project-name }}/bin/Release/*.nupkg" -k ${{ inputs.public-nuget-token }} -s "${{ inputs.public-nuget-url }}" --skip-duplicate
+      if: ${{ github.ref_type == 'tag' && inputs.publish-public == 'true' }}
+      run: dotnet nuget push "${{ inputs.project-name }}/bin/Release/*.nupkg" -k ${{ steps.nuget-login.outputs.NUGET_API_KEY }} -s "${{ inputs.public-nuget-url }}" --skip-duplicate
       shell: bash
     
-    # Step 10 - Publish GitHub Release
+    # Publish GitHub Release
     - name: Publish GitHub Release
       id: publish-release
-      if: ${{ startsWith(github.ref, 'refs/tags/') }}
+      if: ${{ github.ref_type == 'tag' }}
       uses: ncipollo/release-action@v1
       with:
         allowUpdates: true
         draft: false
         omitBodyDuringUpdate: true
         omitNameDuringUpdate: true
-        tag: ${{ env.CI_REF_NAME }}
+        tag: ${{ github.ref_name }}
         token: ${{ inputs.github-token }}
         updateOnlyUnreleased: true
         body: ${{ steps.changelog.outputs.changelog }}
-        name: Version ${{ env.CI_REF_NAME }}
+        name: Version ${{ github.ref_name }}
