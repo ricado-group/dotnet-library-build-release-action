@@ -52,11 +52,13 @@ A Markdown formatted changelog
 ```yml
 permissions:
   id-token: write # Required if Publishing to NuGet
+  contents: write
 
 jobs:
   build-and-release:
     permissions:
       id-token: write # Required if Publishing to NuGet
+      contents: write
     
     steps:
       # Checkout Code
