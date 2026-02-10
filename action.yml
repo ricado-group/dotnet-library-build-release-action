@@ -77,18 +77,6 @@ runs:
       with:
         mytoken: ${{ inputs.github-token }}
     
-    # Create Draft GitHub Release
-    - name: Create Draft GitHub Release
-      id: create-draft-release
-      if: ${{ github.ref_type == 'tag' }}
-      uses: ncipollo/release-action@v1
-      with:
-        body: ${{ steps.changelog.outputs.changelog }}
-        draft: true
-        name: Version ${{ github.ref_name }}
-        tag: ${{ github.ref_name }}
-        token: ${{ inputs.github-token }}
-    
     # Push the Package to GitHub Packages
     - name: Push the Package to GitHub Packages
       if: ${{ github.ref_type == 'tag' }}
@@ -111,16 +99,10 @@ runs:
     
     # Publish GitHub Release
     - name: Publish GitHub Release
-      id: publish-release
       if: ${{ github.ref_type == 'tag' }}
       uses: ncipollo/release-action@v1
       with:
-        allowUpdates: true
-        draft: false
-        omitBodyDuringUpdate: true
-        omitNameDuringUpdate: true
         tag: ${{ github.ref_name }}
         token: ${{ inputs.github-token }}
-        updateOnlyUnreleased: true
         body: ${{ steps.changelog.outputs.changelog }}
         name: Version ${{ github.ref_name }}
