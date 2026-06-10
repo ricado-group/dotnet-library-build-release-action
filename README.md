@@ -1,5 +1,5 @@
 # .NET Library Build and Release Action
-A Composite Action that Builds, Publishes and Releases a .NET 7+ Library
+A Composite Action that Builds, Publishes and Releases a .NET 10+ Library
 
 ## Inputs
 
@@ -37,9 +37,9 @@ Defaults to `false`
 
 ### `dotnet-version`
 
-_Optional_ The .NET SDK Version to be used for Builds (e.g. 7.0.x)
+_Optional_ The .NET SDK Version to be used for Builds (e.g. 10.0.x)
 
-Defaults to `7.0.x`
+Defaults to `10.0.x`
 
 ## Outputs
 
@@ -75,7 +75,7 @@ jobs:
           private-nuget-token: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
           public-nuget-user: ${{ vars.NUGET_USER }}
           publish-public: true
-          dotnet-version: 7.0.x
+          dotnet-version: 10.0.x
 ```
 
 ## Stay Updated with Dependabot

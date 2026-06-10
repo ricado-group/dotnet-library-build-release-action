@@ -25,7 +25,7 @@ jobs:
         with:
           mytoken: ${{ secrets.GITHUB_TOKEN }}
       
-      # Step 4 - Create GitHub Release
+      # Create GitHub Release
       - name: Create GitHub Release
         if: ${{ github.ref_type == 'tag' }}
         uses: ncipollo/release-action@v1
@@ -35,7 +35,7 @@ jobs:
           tag: ${{ github.ref_name }}
           token: ${{ secrets.GITHUB_TOKEN }}
       
-      # Step 5 - Extract Major Version Number
+      # Extract Major Version Number
       - name: Extract Major Version Number
         id: extractMajorVersion
         if: ${{ github.ref_type == 'tag' }}
@@ -43,19 +43,19 @@ jobs:
           tagName=$(echo ${{ github.ref_name }} | cut -d . -f 1)
           echo "tagName=$tagName" >> $GITHUB_OUTPUT
       
-      # Step 6 - Configure Git Metadata
+      # Configure Git Metadata
       - name: Configure Git Metadata
         if: ${{ github.ref_type == 'tag' }}
         run: |
           git config user.name github-actions
           git config user.email github-actions@github.com
       
-      # Step 7 - Tag New Major Version
+      # Tag New Major Version
       - name: Tag New Major Version
         if: ${{ github.ref_type == 'tag' }}
         run: git tag -f ${{ steps.extractMajorVersion.outputs.tagName }} ${{ github.ref_name }}
       
-      # Step 8 - Push New Major Version Tag
+      # Push New Major Version Tag
       - name: Push New Major Version Tag
         if: ${{ github.ref_type == 'tag' }}
         run: git push origin ${{ steps.extractMajorVersion.outputs.tagName }} --force
