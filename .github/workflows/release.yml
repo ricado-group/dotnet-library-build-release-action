@@ -15,7 +15,7 @@ jobs:
     steps:
       # Checkout Code
       - name: Checkout Code
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
       
       # Generate the Changelog
       - name: Generate the Changelog
