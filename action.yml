@@ -73,7 +73,7 @@ runs:
     - name: Generate the Changelog
       id: changelog
       if: ${{ github.ref_type == 'tag' }}
-      uses: metcalfc/changelog-generator@v4
+      uses: metcalfc/changelog-generator@v5
       with:
         mytoken: ${{ inputs.github-token }}
     
